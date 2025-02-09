@@ -123,6 +123,52 @@ canvas.addEventListener("touchend", (e) => {
   activeTouch = null;
 });
 
+canvas.addEventListener(
+  "touchstart",
+  (event) => {
+    if (gameState !== "playing") return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = event.touches[0];
+    const touchX = touch.clientX - rect.left;
+    const touchY = touch.clientY - rect.top;
+
+    // Сначала проверяем врагов
+    let enemyTapped = false;
+    enemies.forEach((enemy) => {
+      if (!enemy.isAlive) return;
+
+      const enemyScreenY = enemy.y + game.cameraY;
+      if (
+        touchX >= enemy.x &&
+        touchX <= enemy.x + enemy.width &&
+        touchY >= enemyScreenY &&
+        touchY <= enemyScreenY + enemy.height
+      ) {
+        enemy.isAlive = false;
+        score += 5;
+        enemyTapped = true;
+      }
+    });
+
+    // Если тап был по врагу - не обрабатываем движение
+    if (enemyTapped) {
+      event.preventDefault();
+      return;
+    }
+
+    // Обработка движения (существующий код)
+    if (touchX < canvas.width / 2) {
+      game.keys["ArrowLeft"] = true;
+      activeTouch = "left";
+    } else {
+      game.keys["ArrowRight"] = true;
+      activeTouch = "right";
+    }
+  },
+  { passive: false }
+);
+
 // Функция создания врага
 function createEnemy(x, y) {
   return {
@@ -685,33 +731,6 @@ const createGameOverUI = () => {
     resetGame(); // Полный сброс игры
   });
 };
-
-canvas.addEventListener("click", (event) => {
-  if (gameState !== "playing") return;
-
-  const rect = canvas.getBoundingClientRect();
-  const clickX = event.clientX - rect.left;
-  const clickY = event.clientY - rect.top;
-
-  // Проверяем всех врагов
-  enemies.forEach((enemy) => {
-    if (enemy.isAlive) {
-      // Учитываем смещение камеры
-      const enemyScreenY = enemy.y + game.cameraY;
-
-      // Проверяем попадание в врага
-      if (
-        clickX >= enemy.x &&
-        clickX <= enemy.x + enemy.width &&
-        clickY >= enemyScreenY &&
-        clickY <= enemyScreenY + enemy.height
-      ) {
-        enemy.isAlive = false;
-        score += 5;
-      }
-    }
-  });
-});
 
 // Сразу создаем UI при загрузке
 createGameOverUI();
