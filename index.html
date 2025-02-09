@@ -1,51 +1,70 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <meta charset="utf-8" />
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="utf-8"/>
     <title>Pixel Emoji Run</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/style.css"/>
     <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #000;
-      }
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
 
-      canvas {
-        display: block;
-      }
+        canvas {
+            display: block;
+        }
 
-      #pauseButton {
-        /* Стили для кнопки */
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: #4caf50;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        cursor: pointer;
-        z-index: 10; /* Чтобы кнопка была поверх canvas */
-        display: none; /* Скрываем кнопку по умолчанию */
-      }
+        #pauseButton {
+            /* Стили для кнопки */
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #4caf50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 10; /* Чтобы кнопка была поверх canvas */
+            display: none; /* Скрываем кнопку по умолчанию */
+        }
 
-      body.playing #pauseButton {
-        display: inline-block; /* Показываем кнопку только когда gameState === "playing" */
-      }
+        body.playing #pauseButton {
+            display: inline-block; /* Показываем кнопку только когда gameState === "playing" */
+        }
     </style>
-  </head>
-  <body>
-    <canvas id="gameCanvas"></canvas>
-    <button id="pauseButton">Пауза</button>
-    <!-- Кнопка паузы -->
-    <script src="js/game.js" type="module"></script>
-  </body>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<button id="pauseButton">Пауза</button>
+<!-- Кнопка паузы -->
+<script src="js/game.js" type="module"></script>
+<script>
+    Telegram.WebApp.ready()
+    const web_app = Telegram.WebApp;
+    const initData = web_app.initDataUnsafe || {};
+    const user = Telegram.WebApp.initDataUnsafe?.user;
+
+    if (user) {
+        console.log("ID пользователя:", user.id);
+        console.log("Имя пользователя:", user.username);
+        console.log("Имя:", user.first_name);
+        console.log("Фамилия:", user.last_name);
+    } else {
+        console.log("Данные пользователя не доступны.");
+    }
+
+    const sendData = () => {
+        console.log(initData);
+    }
+</script>
+</body>
 </html>
