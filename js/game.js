@@ -82,6 +82,47 @@ staticBackground.onload = function () {
   };
 };
 
+// ======== МОБИЛЬНОЕ УПРАВЛЕНИЕ ========
+let activeTouch = null;
+
+function createTouchControls() {
+  const controls = document.createElement("div");
+  controls.id = "touchControls";
+
+  const left = document.createElement("div");
+  left.className = "touch-zone left";
+
+  const right = document.createElement("div");
+  right.className = "touch-zone right";
+
+  controls.append(left, right);
+  document.body.appendChild(controls);
+}
+
+createTouchControls();
+
+canvas.addEventListener("touchstart", (e) => {
+  if (gameState !== "playing") return;
+
+  const rect = canvas.getBoundingClientRect();
+  for (let touch of e.changedTouches) {
+    const x = touch.clientX - rect.left;
+    if (x < canvas.width / 2) {
+      game.keys["ArrowLeft"] = true;
+      activeTouch = "left";
+    } else {
+      game.keys["ArrowRight"] = true;
+      activeTouch = "right";
+    }
+  }
+});
+
+canvas.addEventListener("touchend", (e) => {
+  game.keys["ArrowLeft"] = false;
+  game.keys["ArrowRight"] = false;
+  activeTouch = null;
+});
+
 // Функция создания врага
 function createEnemy(x, y) {
   return {
