@@ -87,3 +87,40 @@ body.gameState-playing #pauseButton {
 #menuButton:hover {
   background-color: rgba(255, 255, 255, 0.4);
 }
+
+/* Стили для мобильного управления */
+#touchControls {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 999;
+  display: none;
+}
+
+.touch-zone {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  opacity: 0.3;
+  transition: opacity 0.3s;
+}
+
+.touch-zone.left {
+  left: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 255, 0.3), transparent);
+}
+
+.touch-zone.right {
+  right: 0;
+  background: linear-gradient(-90deg, rgba(255, 0, 0, 0.3), transparent);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  #touchControls {
+    display: block;
+  }
+}
