@@ -1,0 +1,27 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  overflow: hidden; /* Предотвращает появление полос прокрутки */
+}
+
+canvas {
+  display: block;
+  background-color: #000; /* Черный фон */
+}
+
+#pauseButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: none; /* Скрываем кнопку по умолчанию */
+}
+
+body.playing #pauseButton,
+body.gameState-playing #pauseButton {
+  display: inline-block; /* Показываем кнопку только когда gameState === "playing" */
+}
