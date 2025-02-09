@@ -90,7 +90,7 @@ function createEnemy(x, y) {
     width: enemySettings.width,
     height: enemySettings.height,
     color: enemySettings.color,
-    speed: enemySettings.speed,
+    speed: 50,
     direction: Math.random() > 0.5 ? 1 : -1, // 1 - вправо, -1 - влево
     isAlive: true,
   };
@@ -364,7 +364,7 @@ function restartGame() {
   touchedPlatforms = [];
 
   hideGameOverUI();
-  resetGame();
+  startGame();
 }
 
 function resetGame() {
@@ -633,6 +633,52 @@ const hideGameOverUI = () => {
   const ui = document.getElementById("gameOverUI");
   if (ui) ui.style.display = "none";
 };
+
+// Добавляем переменные для отслеживания касаний
+let touchStartX = null;
+let touchEndX = null;
+
+// Функция для обработки начала касания
+function handleTouchStart(event) {
+  touchStartX = event.touches[0].clientX;
+}
+
+// Функция для обработки перемещения касания
+function handleTouchMove(event) {
+  touchEndX = event.touches[0].clientX;
+}
+
+// Функция для обработки окончания касания
+function handleTouchEnd(event) {
+  // Вычисляем разницу между начальной и конечной точкой касания
+  const swipeDistance = touchEndX - touchStartX;
+
+  // Определяем направление движения
+  const swipeThreshold = 50; // Минимальное расстояние для определения свайпа
+
+  if (swipeDistance > swipeThreshold) {
+    // Движение вправо
+    console.log("Right");
+    game.keys["ArrowRight"] = true;
+    game.keys["ArrowLeft"] = false;
+    setTimeout(() => (game.keys["ArrowRight"] = false), 100); // Отпускаем клавишу через 100мс
+  } else if (swipeDistance < -swipeThreshold) {
+    // Движение влево
+    console.log("Left");
+    game.keys["ArrowLeft"] = true;
+    game.keys["ArrowRight"] = false;
+    setTimeout(() => (game.keys["ArrowLeft"] = false), 100); // Отпускаем клавишу через 100мс
+  }
+
+  // Сбрасываем значения
+  touchStartX = null;
+  touchEndX = null;
+}
+
+// Добавляем обработчики событий касания к canvas
+canvas.addEventListener("touchstart", handleTouchStart, false);
+canvas.addEventListener("touchmove", handleTouchMove, false);
+canvas.addEventListener("touchend", handleTouchEnd, false);
 
 let currentSkinIndex = 0;
 const skinPaths = [
