@@ -99,8 +99,12 @@ function createEnemy(x, y) {
 // Функция генерации врагов на платформах
 function generateEnemies() {
   platforms.forEach((platform) => {
-    // Не создаем врагов на начальной платформе и платформах video
-    if (platform.type !== "text" && platform.type !== "video") {
+    // Проверяем тип платформы. Не создаем врагов на платформах "photo"
+    if (
+      platform.type !== "photo" &&
+      platform.type !== "video" &&
+      platform.type !== "text"
+    ) {
       // С некоторой вероятностью создаем врага на платформе
       if (Math.random() < 0.3) {
         // 30% вероятность
@@ -113,7 +117,6 @@ function generateEnemies() {
     }
   });
 }
-
 // Отрисовка врагов
 function renderEnemies() {
   enemies.forEach((enemy) => {
@@ -204,6 +207,9 @@ function resizeCanvas() {
   game.cameraY = -player.y + canvas.height / 2;
 }
 
+// Создаем изображение для игрока (если еще не создано)
+const playerImage = new Image();
+
 function renderMenu() {
   ctx.fillStyle = "#000000";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -212,9 +218,13 @@ function renderMenu() {
   ctx.font = "30px Arial";
   ctx.textAlign = "center";
   ctx.fillText("Платформер", canvas.width / 2, canvas.height / 2 - 50);
-
-  ctx.font = "20px Arial";
   ctx.fillText("Нажмите, чтобы начать", canvas.width / 2, canvas.height / 2);
+
+  // Показываем селектор скинов только в меню
+  const skinSelector = document.getElementById("skinSelector");
+  if (skinSelector) {
+    skinSelector.style.display = "flex";
+  }
 }
 
 function renderGameOver() {
@@ -232,6 +242,8 @@ function renderGameOver() {
     canvas.width / 2,
     canvas.height / 2
   );
+  showGameOverUI();
+  removeSkinSelector();
 }
 
 function getPlatformColor(type) {
@@ -294,6 +306,9 @@ function startGame() {
   document.body.className = "";
   document.body.classList.add("gameState-" + gameState);
 
+  removeSkinSelector();
+  hideGameOverUI();
+
   platforms.length = 0;
   platformsPassed = 0;
   score = 0;
@@ -340,53 +355,45 @@ function restartGame() {
   player.y = canvas.height - 150;
   player.velocityY = 0;
   player.isJumping = false;
-  player.wasJumping = false;
   platforms.length = 0;
+  enemies.length = 0;
   game.cameraY = 0;
   platformsPassed = 0;
   score = 0;
   lastPlatformTouched = null;
   touchedPlatforms = [];
-  enemies.length = 0;
 
-  startGame();
+  hideGameOverUI();
+  resetGame();
+}
+
+function resetGame() {
+  platforms.length = 0;
+  enemies.length = 0;
+  platformsPassed = 0;
+  score = 0;
+  lastPlatformTouched = null;
+  touchedPlatforms = [];
+  player.velocityY = 0;
+  player.isJumping = false;
+  gameState = "menu";
+  game.cameraY = 0;
 }
 
 canvas.onclick = function (event) {
-  document.body.classList.remove("playing");
-  document.body.className = "";
-  document.body.classList.add("gameState-" + gameState);
+  // Игнорируем клики по UI элементам
+  if (event.target.closest("#gameOverUI")) return;
+
   if (gameState === "menu") {
     startGame();
   } else if (gameState === "gameOver") {
     restartGame();
   }
+
+  document.body.classList.remove("playing");
+  document.body.className = "";
+  document.body.classList.add("gameState-" + gameState);
 };
-
-canvas.addEventListener(
-  "touchstart",
-  (event) => {
-    const touchX = event.touches[0].clientX;
-
-    if (touchX < canvas.width / 2) {
-      game.keys["ArrowLeft"] = true;
-      game.keys["ArrowRight"] = false;
-    } else {
-      game.keys["ArrowRight"] = true;
-      game.keys["ArrowLeft"] = false;
-    }
-
-    event.preventDefault();
-  },
-  {
-    passive: true,
-  }
-);
-
-canvas.addEventListener("touchend", (event) => {
-  game.keys["ArrowLeft"] = false;
-  game.keys["ArrowRight"] = false;
-});
 
 document.addEventListener("keydown", (event) => {
   game.keys[event.code] = true;
@@ -422,8 +429,8 @@ function render() {
 
     renderEnemies();
 
-    ctx.fillStyle = player.color;
-    ctx.fillRect(
+    ctx.drawImage(
+      playerImage,
       player.x,
       player.y + game.cameraY,
       player.width,
@@ -495,40 +502,7 @@ function update(deltaTime) {
       player.y = platform.y - player.height;
       player.velocityY = game.jumpSpeed;
       player.isJumping = false;
-
-      platformsPassed++;
     }
-  }
-
-  if (platformsPassed >= 15) {
-    // Получаем платформы, которые будут удалены
-    const removedPlatforms = platforms.splice(0, 15);
-
-    // Удаляем врагов, которые находятся на удаленных платформах
-    for (const platform of removedPlatforms) {
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        const enemy = enemies[i];
-        if (enemy.y + enemy.height === platform.y) {
-          enemies.splice(i, 1);
-        }
-      }
-    }
-    while (platforms.length < game.maxPlatforms) {
-      const platform = generatePlatform();
-      const lastPlatform = platforms[platforms.length - 1];
-      platform.y = lastPlatform
-        ? lastPlatform.y -
-          (platformSettings.minVerticalGap +
-            Math.random() *
-              (platformSettings.maxVerticalGap -
-                platformSettings.minVerticalGap))
-        : player.y - 200;
-
-      platforms.push(platform);
-    }
-
-    generateEnemies();
-    platformsPassed = 0;
   }
 
   checkGameOver();
@@ -615,26 +589,100 @@ function gameLoop(timestamp) {
 resizeCanvas();
 requestAnimationFrame(gameLoop);
 
-canvas.addEventListener("click", (event) => {
-  if (gameState === "playing") {
-    const rect = canvas.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const clickY = event.clientY - rect.top;
+// Добавляем после создания pauseButton
+const createGameOverUI = () => {
+  const gameOverUI = document.createElement("div");
+  gameOverUI.id = "gameOverUI";
+  gameOverUI.style.display = "none";
 
-    for (let i = enemies.length - 1; i >= 0; i--) {
-      const enemy = enemies[i];
-      if (enemy.isAlive) {
-        if (
-          clickX >= enemy.x &&
-          clickX <= enemy.x + enemy.width &&
-          clickY >= enemy.y + game.cameraY &&
-          clickY <= enemy.y + game.cameraY + enemy.height
-        ) {
-          enemy.isAlive = false;
-          score += 5;
-          break;
-        }
-      }
-    }
+  const restartBtn = document.createElement("button");
+  restartBtn.id = "restartButton";
+  restartBtn.textContent = "⟳ Перезапустить";
+
+  const menuBtn = document.createElement("button");
+  menuBtn.id = "menuButton";
+  menuBtn.textContent = "≡ Главное меню";
+
+  gameOverUI.append(restartBtn, menuBtn);
+  document.body.appendChild(gameOverUI);
+
+  // Обработчики событий
+  restartBtn.addEventListener("click", () => {
+    restartGame();
+    hideGameOverUI();
+  });
+
+  menuBtn.addEventListener("click", () => {
+    gameState = "menu";
+    hideGameOverUI();
+    removeSkinSelector(); // На случай если были скрыты
+    resetGame(); // Полный сброс игры
+  });
+};
+
+// Сразу создаем UI при загрузке
+createGameOverUI();
+
+// Добавляем функции управления видимостью
+const showGameOverUI = () => {
+  const ui = document.getElementById("gameOverUI");
+  if (ui) ui.style.display = "flex";
+};
+
+const hideGameOverUI = () => {
+  const ui = document.getElementById("gameOverUI");
+  if (ui) ui.style.display = "none";
+};
+
+let currentSkinIndex = 0;
+const skinPaths = [
+  "assets/skins/skin1.png",
+  "assets/skins/skin2.png",
+  "assets/skins/skin3.png",
+];
+
+function createSkinSelector() {
+  const skinSelector = document.createElement("div");
+  skinSelector.id = "skinSelector";
+  skinSelector.style.display = "none"; // Скрываем по умолчанию
+
+  const prevSkinButton = document.createElement("button");
+  prevSkinButton.id = "prevSkin";
+  prevSkinButton.textContent = "←";
+
+  const skinImageElement = document.createElement("img");
+  skinImageElement.id = "skinImage";
+  skinImageElement.src = skinPaths[currentSkinIndex];
+
+  const nextSkinButton = document.createElement("button");
+  nextSkinButton.id = "nextSkin";
+  nextSkinButton.textContent = "→";
+
+  skinSelector.append(prevSkinButton, skinImageElement, nextSkinButton);
+  document.body.appendChild(skinSelector);
+
+  // Обработчики событий
+  prevSkinButton.addEventListener("click", () => {
+    currentSkinIndex =
+      (currentSkinIndex - 1 + skinPaths.length) % skinPaths.length;
+    skinImageElement.src = skinPaths[currentSkinIndex];
+    playerImage.src = skinPaths[currentSkinIndex];
+  });
+
+  nextSkinButton.addEventListener("click", () => {
+    currentSkinIndex = (currentSkinIndex + 1) % skinPaths.length;
+    skinImageElement.src = skinPaths[currentSkinIndex];
+    playerImage.src = skinPaths[currentSkinIndex];
+  });
+  playerImage.src = skinPaths[0];
+}
+
+function removeSkinSelector() {
+  const skinSelector = document.getElementById("skinSelector");
+  if (skinSelector) {
+    skinSelector.style.display = "none"; // Скрываем вместо удаления
   }
-});
+}
+
+// Вызовите эту функцию при инициализации игры
+createSkinSelector();
