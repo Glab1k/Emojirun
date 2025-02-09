@@ -403,6 +403,31 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+canvas.addEventListener(
+  "touchstart",
+  (event) => {
+    const touchX = event.touches[0].clientX;
+
+    if (touchX < canvas.width / 2) {
+      game.keys["ArrowLeft"] = true;
+      game.keys["ArrowRight"] = false;
+    } else {
+      game.keys["ArrowRight"] = true;
+      game.keys["ArrowLeft"] = false;
+    }
+
+    event.preventDefault();
+  },
+  {
+    passive: true,
+  }
+);
+
+canvas.addEventListener("touchend", (event) => {
+  game.keys["ArrowLeft"] = false;
+  game.keys["ArrowRight"] = false;
+});
+
 document.addEventListener("keyup", (event) => {
   game.keys[event.code] = false;
 });
