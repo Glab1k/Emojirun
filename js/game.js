@@ -120,9 +120,11 @@ canvas.addEventListener(
     const lastTouch = event.touches[event.touches.length - 1];
     const touchX = lastTouch.clientX - rect.left;
 
-    game.keys["ArrowLeft"] = true;
-    game.keys["ArrowRight"] = true;
+    // Сбрасываем предыдущее состояние
+    game.keys["ArrowLeft"] = false;
+    game.keys["ArrowRight"] = false;
 
+    // Устанавливаем новое направление
     if (touchX < canvas.width / 2) {
       game.keys["ArrowLeft"] = true;
       activeTouch = "left";
@@ -145,9 +147,11 @@ canvas.addEventListener(
     const touch = event.touches[0];
     const touchX = touch.clientX - rect.left;
 
+    // Сбрасываем предыдущее состояние
     game.keys["ArrowLeft"] = false;
     game.keys["ArrowRight"] = false;
 
+    // Устанавливаем новое направление
     if (touchX < canvas.width / 2) {
       game.keys["ArrowLeft"] = true;
       activeTouch = "left";
@@ -772,34 +776,6 @@ const hideGameOverUI = () => {
 // Добавляем переменные для отслеживания касаний
 let touchStartX = null;
 let touchEndX = null;
-
-// Функция для обработки начала касания
-function handleTouchStart(event) {
-  touchStartX = event.touches[0].clientX;
-}
-
-// Функция для обработки перемещения касания
-function handleTouchMove(event) {
-  touchEndX = event.touches[0].clientX;
-}
-
-// Функция для обработки окончания касания
-function handleTouchEnd(event) {
-  // Вычисляем разницу между начальной и конечной точкой касания
-  const swipeDistance = touchEndX - touchStartX;
-
-  // Определяем направление движения
-  const swipeThreshold = 50; // Минимальное расстояние для определения свайпа
-
-  // Сбрасываем значения
-  touchStartX = null;
-  touchEndX = null;
-}
-
-// Добавляем обработчики событий касания к canvas
-canvas.addEventListener("touchstart", handleTouchStart, false);
-canvas.addEventListener("touchmove", handleTouchMove, false);
-canvas.addEventListener("touchend", handleTouchEnd, false);
 
 let currentSkinIndex = 0;
 const skinPaths = [
