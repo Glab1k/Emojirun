@@ -722,20 +722,6 @@ function handleTouchEnd(event) {
   // Определяем направление движения
   const swipeThreshold = 50; // Минимальное расстояние для определения свайпа
 
-  if (swipeDistance > swipeThreshold) {
-    // Движение вправо
-    console.log("Right");
-    game.keys["ArrowRight"] = true;
-    game.keys["ArrowLeft"] = false;
-    setTimeout(() => (game.keys["ArrowRight"] = false), 100); // Отпускаем клавишу через 100мс
-  } else if (swipeDistance < -swipeThreshold) {
-    // Движение влево
-    console.log("Left");
-    game.keys["ArrowLeft"] = true;
-    game.keys["ArrowRight"] = false;
-    setTimeout(() => (game.keys["ArrowLeft"] = false), 100); // Отпускаем клавишу через 100мс
-  }
-
   // Сбрасываем значения
   touchStartX = null;
   touchEndX = null;
