@@ -25,3 +25,65 @@ body.playing #pauseButton,
 body.gameState-playing #pauseButton {
   display: inline-block; /* Показываем кнопку только когда gameState === "playing" */
 }
+
+/* скины*/
+
+#skinSelector {
+  display: none; /* Скрываем по умолчанию */
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+}
+
+#skinSelector button {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 0 10px;
+  /* Отступы между кнопками и изображением */
+}
+
+#skinImage {
+  width: 64px;
+  /* Размер изображения скина */
+  height: 64px;
+  margin: 0 10px;
+  border-radius: 5px;
+  /* Добавляем скругление углов */
+  border: 2px solid #fff;
+  /* Рамка для выделения текущего скина */
+}
+
+#gameOverUI {
+  position: absolute;
+  bottom: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+#restartButton,
+#menuButton {
+  padding: 12px 25px;
+  font-size: 18px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#restartButton:hover,
+#menuButton:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
