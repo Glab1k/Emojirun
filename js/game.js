@@ -120,8 +120,8 @@ canvas.addEventListener(
     const lastTouch = event.touches[event.touches.length - 1];
     const touchX = lastTouch.clientX - rect.left;
 
-    game.keys["ArrowLeft"] = false;
-    game.keys["ArrowRight"] = false;
+    game.keys["ArrowLeft"] = true;
+    game.keys["ArrowRight"] = true;
 
     if (touchX < canvas.width / 2) {
       game.keys["ArrowLeft"] = true;
