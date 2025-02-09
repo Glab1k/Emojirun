@@ -437,7 +437,7 @@ canvas.onclick = function (event) {
 };
 
 document.addEventListener("keydown", (event) => {
-  game.keys[event.code] = true;
+  game.keys[event.code] = false;
   if (event.code === "Space" && !player.isJumping) {
     player.velocityY = game.jumpSpeed;
     player.isJumping = true;
@@ -450,10 +450,10 @@ canvas.addEventListener(
     const touchX = event.touches[0].clientX;
 
     if (touchX < canvas.width / 2) {
-      game.keys["ArrowLeft"] = true;
+      game.keys["ArrowLeft"] = false;
       game.keys["ArrowRight"] = false;
     } else {
-      game.keys["ArrowRight"] = true;
+      game.keys["ArrowRight"] = false;
       game.keys["ArrowLeft"] = false;
     }
 
