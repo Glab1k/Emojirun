@@ -82,45 +82,114 @@ staticBackground.onload = function () {
   };
 };
 
-// ======== МОБИЛЬНОЕ УПРАВЛЕНИЕ ========
+// ======== МОБИЛЬНОЕ УПРАВЛЕНИЕ И УБИЙСТВО МОБОВ ========
 let activeTouch = null;
 
-function createTouchControls() {
-  const controls = document.createElement("div");
-  controls.id = "touchControls";
+canvas.addEventListener(
+  "touchstart",
+  (event) => {
+    if (gameState !== "playing") return;
 
-  const left = document.createElement("div");
-  left.className = "touch-zone left";
+    const rect = canvas.getBoundingClientRect();
+    let enemyTapped = false;
 
-  const right = document.createElement("div");
-  right.className = "touch-zone right";
+    // Обработка всех касаний
+    for (let touch of event.touches) {
+      const touchX = touch.clientX - rect.left;
+      const touchY = touch.clientY - rect.top;
 
-  controls.append(left, right);
-  document.body.appendChild(controls);
-}
+      // Проверка на попадание во врагов
+      enemies.forEach((enemy) => {
+        if (!enemy.isAlive) return;
 
-createTouchControls();
+        const enemyScreenY = enemy.y + game.cameraY;
+        if (
+          touchX >= enemy.x &&
+          touchX <= enemy.x + enemy.width &&
+          touchY >= enemyScreenY &&
+          touchY <= enemyScreenY + enemy.height
+        ) {
+          enemy.isAlive = false;
+          score += 5;
+          enemyTapped = true;
+        }
+      });
+    }
 
-canvas.addEventListener("touchstart", (e) => {
-  if (gameState !== "playing") return;
+    // Обработка движения по последнему касанию
+    const lastTouch = event.touches[event.touches.length - 1];
+    const touchX = lastTouch.clientX - rect.left;
 
-  const rect = canvas.getBoundingClientRect();
-  for (let touch of e.changedTouches) {
-    const x = touch.clientX - rect.left;
-    if (x < canvas.width / 2) {
+    game.keys["ArrowLeft"] = false;
+    game.keys["ArrowRight"] = false;
+
+    if (touchX < canvas.width / 2) {
       game.keys["ArrowLeft"] = true;
       activeTouch = "left";
     } else {
       game.keys["ArrowRight"] = true;
       activeTouch = "right";
     }
-  }
-});
+
+    if (enemyTapped) event.preventDefault();
+  },
+  { passive: true }
+);
+
+canvas.addEventListener(
+  "touchmove",
+  (event) => {
+    if (gameState !== "playing") return;
+
+    const rect = canvas.getBoundingClientRect();
+    const touch = event.touches[0];
+    const touchX = touch.clientX - rect.left;
+
+    game.keys["ArrowLeft"] = false;
+    game.keys["ArrowRight"] = false;
+
+    if (touchX < canvas.width / 2) {
+      game.keys["ArrowLeft"] = true;
+      activeTouch = "left";
+    } else {
+      game.keys["ArrowRight"] = true;
+      activeTouch = "right";
+    }
+
+    event.preventDefault();
+  },
+  { passive: true }
+);
 
 canvas.addEventListener("touchend", (e) => {
   game.keys["ArrowLeft"] = false;
   game.keys["ArrowRight"] = false;
   activeTouch = null;
+});
+
+// Обработчик кликов для десктопов
+canvas.addEventListener("click", (event) => {
+  if (gameState !== "playing") return;
+
+  const rect = canvas.getBoundingClientRect();
+  const clickX = event.clientX - rect.left;
+  const clickY = event.clientY - rect.top;
+
+  enemies.forEach((enemy) => {
+    if (enemy.isAlive) {
+      const enemyScreenY = enemy.y + game.cameraY;
+
+      if (
+        clickX >= enemy.x &&
+        clickX <= enemy.x + enemy.width &&
+        clickY >= enemyScreenY &&
+        clickY <= enemyScreenY + enemy.height
+      ) {
+        enemy.isAlive = false;
+        score += 5;
+      }
+    }
+  });
 });
 
 // Функция создания врага
@@ -685,93 +754,6 @@ const createGameOverUI = () => {
     resetGame(); // Полный сброс игры
   });
 };
-
-// Обновленный обработчик касаний
-canvas.addEventListener(
-  "touchstart",
-  (event) => {
-    if (gameState !== "playing") return;
-
-    const rect = canvas.getBoundingClientRect();
-    let enemyTapped = false;
-
-    // Проверяем все точки касания
-    for (let touch of event.touches) {
-      const touchX = touch.clientX - rect.left;
-      const touchY = touch.clientY - rect.top;
-
-      // Проверка на врагов
-      enemies.forEach((enemy) => {
-        if (!enemy.isAlive) return;
-
-        const enemyScreenY = enemy.y + game.cameraY;
-        if (
-          touchX >= enemy.x &&
-          touchX <= enemy.x + enemy.width &&
-          touchY >= enemyScreenY &&
-          touchY <= enemyScreenY + enemy.height
-        ) {
-          enemy.isAlive = false;
-          score += 5;
-          enemyTapped = true;
-        }
-      });
-    }
-
-    // Обработка движения по последнему касанию
-    const lastTouch = event.touches[event.touches.length - 1];
-    const touchX = lastTouch.clientX - rect.left;
-
-    // Сбрасываем предыдущее состояние
-    game.keys["ArrowLeft"] = false;
-    game.keys["ArrowRight"] = false;
-
-    // Устанавливаем новое направление
-    if (touchX < canvas.width / 2) {
-      game.keys["ArrowLeft"] = true;
-      activeTouch = "left";
-    } else {
-      game.keys["ArrowRight"] = true;
-      activeTouch = "right";
-    }
-
-    if (enemyTapped) event.preventDefault();
-  },
-  { passive: true }
-);
-
-// Обновленный обработчик перемещения пальца
-canvas.addEventListener(
-  "touchmove",
-  (event) => {
-    if (gameState !== "playing") return;
-
-    const rect = canvas.getBoundingClientRect();
-    const touch = event.touches[0];
-    const touchX = touch.clientX - rect.left;
-
-    game.keys["ArrowLeft"] = false;
-    game.keys["ArrowRight"] = false;
-
-    if (touchX < canvas.width / 2) {
-      game.keys["ArrowLeft"] = true;
-      activeTouch = "left";
-    } else {
-      game.keys["ArrowRight"] = true;
-      activeTouch = "right";
-    }
-
-    event.preventDefault();
-  },
-  { passive: true }
-);
-
-// Обработчик окончания касания
-canvas.addEventListener("touchend", (e) => {
-  game.keys["ArrowLeft"] = false;
-  game.keys["ArrowRight"] = false;
-  activeTouch = null;
-});
 
 // Сразу создаем UI при загрузке
 createGameOverUI();
