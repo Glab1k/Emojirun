@@ -216,7 +216,7 @@ function checkEnemyCollisions() {
         ) {
           // Убиваем врага
           enemy.isAlive = false;
-          score += 5;
+          score += 3;
           player.velocityY = game.jumpSpeed * 0.75; // Отскок после убийства
         } else {
           // Игра окончена
@@ -685,6 +685,33 @@ const createGameOverUI = () => {
     resetGame(); // Полный сброс игры
   });
 };
+
+canvas.addEventListener("click", (event) => {
+  if (gameState !== "playing") return;
+
+  const rect = canvas.getBoundingClientRect();
+  const clickX = event.clientX - rect.left;
+  const clickY = event.clientY - rect.top;
+
+  // Проверяем всех врагов
+  enemies.forEach((enemy) => {
+    if (enemy.isAlive) {
+      // Учитываем смещение камеры
+      const enemyScreenY = enemy.y + game.cameraY;
+
+      // Проверяем попадание в врага
+      if (
+        clickX >= enemy.x &&
+        clickX <= enemy.x + enemy.width &&
+        clickY >= enemyScreenY &&
+        clickY <= enemyScreenY + enemy.height
+      ) {
+        enemy.isAlive = false;
+        score += 5;
+      }
+    }
+  });
+});
 
 // Сразу создаем UI при загрузке
 createGameOverUI();
