@@ -718,9 +718,9 @@ function render() {
     );
 
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "20px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText("Счет: " + score, 10, 30);
+    ctx.font = "30px Arial";
+    ctx.textAlign = "center"; // Выравнивание по центру
+    ctx.fillText(score.toString(), canvas.width / 2, 30); // Центрируем по горизонтали
   }
 
   if (game.isPaused && gameState === "playing") {
