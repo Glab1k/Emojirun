@@ -112,13 +112,14 @@ function handleDeviceMotion(event) {
   const acc = event.accelerationIncludingGravity;
   if (!acc) return;
 
-  const threshold = 1.5;
+  const threshold = 1.5; // Порог чувствительности
   game.keys["ArrowLeft"] = false;
   game.keys["ArrowRight"] = false;
 
-  if (acc.x > threshold) {
+  // Инвертируем направление, если оси путаются
+  if (acc.x < -threshold) { // Наклон ВЛЕВО -> движение ВЛЕВО
     game.keys["ArrowLeft"] = true;
-  } else if (acc.x < -threshold) {
+  } else if (acc.x > threshold) { // Наклон ВПРАВО -> движение ВПРАВО
     game.keys["ArrowRight"] = true;
   }
 }
