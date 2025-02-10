@@ -11,39 +11,6 @@
     <meta charset="utf-8" />
     <title>Pixel Emoji Run</title>
     <link rel="stylesheet" href="css/style.css" />
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #000;
-      }
-
-      canvas {
-        display: block;
-      }
-
-      #pauseButton {
-        /* Стили для кнопки */
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background-color: #4caf50;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        cursor: pointer;
-        z-index: 10; /* Чтобы кнопка была поверх canvas */
-        display: none; /* Скрываем кнопку по умолчанию */
-      }
-
-      body.playing #pauseButton {
-        display: inline-block; /* Показываем кнопку только когда gameState === "playing" */
-      }
-    </style>
 
     <meta
       name="viewport"
@@ -52,17 +19,16 @@
     />
   </head>
   <body>
-    <button id="controlToggle">Переключить управление</button>
-    <!-- Кнопка управления-->
     <canvas id="gameCanvas"></canvas>
     <button id="pauseButton">Пауза</button>
     <!-- Кнопка паузы -->
     <button id="settingsButton" style="display: none">⚙️</button>
     <!-- Кнопка настроек -->
-    <!-- Меню настроек -->
     <div id="settingsMenu" style="display: none">
       <button id="changeControlButton">Сменить управление</button>
     </div>
+    <button id="controlToggle">Переключить управление</button>
+    <!-- Кнопка управления-->
     <script src="js/game.js" type="module"></script>
     <script>
       Telegram.WebApp.ready();
