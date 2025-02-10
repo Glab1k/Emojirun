@@ -130,6 +130,16 @@ function vibrate() {
   }
 }
 
+const calibrationOffset = 0.5; // Экспериментируйте с этим значением
+const adjustedX = acc.x + calibrationOffset;
+
+if (adjustedX < -threshold) {
+  game.keys["ArrowLeft"] = true;
+} else if (adjustedX > threshold) {
+  game.keys["ArrowRight"] = true;
+}
+
+
 // ======== МОБИЛЬНОЕ УПРАВЛЕНИЕ И УБИЙСТВО МОБОВ ========
 let activeTouch = null;
 
