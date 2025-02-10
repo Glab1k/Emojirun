@@ -11,6 +11,8 @@ const game = {
   cameraY: 0,
   maxPlatforms: 60,
   isPaused: false,
+  controlType: "accelerometer", // Добавлено поле для переключения управления
+  accelSensitivity: 2.5,
 };
 
 // Настройки генерации платформ
