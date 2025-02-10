@@ -528,9 +528,14 @@ function startGame() {
 }
 
 document.getElementById("controlToggle").addEventListener("click", () => {
-  game.controlType =
-    game.controlType === "accelerometer" ? "touch" : "accelerometer";
-  if (game.controlType === "accelerometer") enableAccelerometer();
+  // Сбрасываем состояние управления
+  game.keys["ArrowLeft"] = false;
+  game.keys["ArrowRight"] = false;
+  
+  game.controlType = game.controlType === "accelerometer" ? "touch" : "accelerometer";
+  if (game.controlType === "accelerometer") {
+    enableAccelerometer();
+  }
 });
 
 function restartGame() {
