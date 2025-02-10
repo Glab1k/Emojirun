@@ -13,6 +13,7 @@ const game = {
   isPaused: false,
   controlType: "accelerometer", // Добавлено поле для переключения управления
   accelSensitivity: 2.5,
+  accelCalibration: 0, // Калибровочное смещение
 };
 
 // Настройки генерации платформ
@@ -109,20 +110,28 @@ function handleDeviceMotion(event) {
   )
     return;
 
-  const acc = event.accelerationIncludingGravity;
-  if (!acc) return;
-
-  const threshold = 1.5; // Порог чувствительности
-  game.keys["ArrowLeft"] = false;
-  game.keys["ArrowRight"] = false;
-
-  // Инвертируем направление, если оси путаются
-  if (acc.x < -threshold) { // Наклон ВЛЕВО -> движение ВЛЕВО
-    game.keys["ArrowLeft"] = true;
-  } else if (acc.x > threshold) { // Наклон ВПРАВО -> движение ВПРАВО
-    game.keys["ArrowRight"] = true;
+    const acc = event.accelerationIncludingGravity;
+    if (!acc) return;
+  
+    // Калибровка и чувствительность
+    const adjustedX = acc.x + game.accelCalibration;
+    const threshold = 1.5; // Порог чувствительности
+    const deadZone = 0.3; // Мертвая зона для предотвращения дрожания
+  
+    // Сбрасываем предыдущее состояние
+    game.keys["ArrowLeft"] = false;
+    game.keys["ArrowRight"] = false;
+  
+    // Игнорируем небольшие наклоны (мертвая зона)
+    if (Math.abs(adjustedX) < deadZone) return;
+  
+    // Управление движением
+    if (adjustedX < -threshold) { // Наклон влево -> движение влево
+      game.keys["ArrowLeft"] = true;
+    } else if (adjustedX > threshold) { // Наклон вправо -> движение вправо
+      game.keys["ArrowRight"] = true;
+    }
   }
-}
 
 function vibrate() {
   if (navigator.vibrate) {
@@ -130,14 +139,7 @@ function vibrate() {
   }
 }
 
-const calibrationOffset = 0.5; // Экспериментируйте с этим значением
-const adjustedX = acc.x + calibrationOffset;
 
-if (adjustedX < -threshold) {
-  game.keys["ArrowLeft"] = true;
-} else if (adjustedX > threshold) {
-  game.keys["ArrowRight"] = true;
-}
 
 
 // ======== МОБИЛЬНОЕ УПРАВЛЕНИЕ И УБИЙСТВО МОБОВ ========
