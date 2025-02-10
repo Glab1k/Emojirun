@@ -17,6 +17,7 @@ html {
   width: 100%;
   height: 100%;
 }
+
 #gameCanvas {
   display: block;
   width: 100%;
@@ -41,8 +42,7 @@ body.gameState-playing #pauseButton {
   display: inline-block; /* Показываем кнопку только когда gameState === "playing" */
 }
 
-/* скины*/
-
+/* Стили для скинов */
 #skinSelector {
   display: none; /* Скрываем по умолчанию */
   position: absolute;
@@ -140,48 +140,45 @@ body.gameState-playing #pauseButton {
   }
 }
 
-/* Добавьте в CSS */
-#controlToggle {
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+body.playing #pauseButton {
+  display: inline-block; /* Показываем кнопку только когда gameState === "playing" */
 }
 
-#controlToggle[data-mode="accelerometer"] {
-  background: #2196f3;
-}
-
-#controlToggle[data-mode="touch"] {
-  background: #4caf50;
-}
-* Стили для кнопки шестеренки */ #settingsButton {
+/* Стили для кнопки шестеренки */
+#settingsButton {
   position: fixed;
   top: 10px;
-  right: 10px;
+  left: 10px; /* Перемещаем в левый угол */
   font-size: 24px;
   background: none;
   border: none;
   cursor: pointer;
   z-index: 1000; /* Чтобы кнопка была поверх других элементов */
+  display: none; /* Скрываем по умолчанию */
+}
+
+/* Стили для счета */
+#score {
+  position: fixed;
+  top: 50px; /* Отступ от верхнего края, чтобы счет был под кнопкой шестеренки */
+  left: 10px; /* Выравниваем по левому краю, как и кнопка шестеренки */
+  font-size: 24px;
+  color: white;
+  z-index: 1000; /* Чтобы счет был поверх других элементов */
+  display: none; /* Скрываем по умолчанию */
 }
 
 /* Стили для меню настроек */
 #settingsMenu {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 50px; /* Отступ от верхнего края, чтобы не перекрывать кнопку шестеренки */
+  left: 10px; /* Перемещаем в левый угол */
   background: rgba(0, 0, 0, 0.8);
   padding: 20px;
   border-radius: 10px;
   text-align: center;
   z-index: 1000; /* Чтобы меню было поверх других элементов */
+  display: none; /* Скрываем по умолчанию */
 }
 
 #changeControlButton {
