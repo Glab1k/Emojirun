@@ -852,6 +852,8 @@ function checkGameOver() {
     console.log("Игрок упал за пределы экрана. Игра окончена!");
   }
 }
+
+
 function renderPauseScreen() {
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
