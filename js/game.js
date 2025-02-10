@@ -82,6 +82,51 @@ staticBackground.onload = function () {
   };
 };
 
+// ======== Управление акселерометром ========
+function enableAccelerometer() {
+  if (typeof DeviceMotionEvent !== "undefined") {
+    if (typeof DeviceMotionEvent.requestPermission === "function") {
+      DeviceMotionEvent.requestPermission()
+        .then((permissionState) => {
+          if (permissionState === "granted") {
+            window.addEventListener("devicemotion", handleDeviceMotion);
+          }
+        })
+        .catch(console.error);
+    } else {
+      window.addEventListener("devicemotion", handleDeviceMotion);
+    }
+  }
+}
+
+function handleDeviceMotion(event) {
+  if (
+    gameState !== "playing" ||
+    game.isPaused ||
+    game.controlType !== "accelerometer"
+  )
+    return;
+
+  const acc = event.accelerationIncludingGravity;
+  if (!acc) return;
+
+  const threshold = 1.5;
+  game.keys["ArrowLeft"] = false;
+  game.keys["ArrowRight"] = false;
+
+  if (acc.x > threshold) {
+    game.keys["ArrowLeft"] = true;
+  } else if (acc.x < -threshold) {
+    game.keys["ArrowRight"] = true;
+  }
+}
+
+function vibrate() {
+  if (navigator.vibrate) {
+    navigator.vibrate(50);
+  }
+}
+
 // ======== МОБИЛЬНОЕ УПРАВЛЕНИЕ И УБИЙСТВО МОБОВ ========
 let activeTouch = null;
 
@@ -462,7 +507,15 @@ function startGame() {
 
   game.cameraY = -player.y + canvas.height * 0.75;
   resizeCanvas();
+
+  enableAccelerometer(); //акселерометр
 }
+
+document.getElementById("controlToggle").addEventListener("click", () => {
+  game.controlType =
+    game.controlType === "accelerometer" ? "touch" : "accelerometer";
+  if (game.controlType === "accelerometer") enableAccelerometer();
+});
 
 function restartGame() {
   player.x = canvas.width / 2 - player.width / 2;
