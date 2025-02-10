@@ -110,37 +110,36 @@ function handleDeviceMotion(event) {
   )
     return;
 
-    const acc = event.accelerationIncludingGravity;
-    if (!acc) return;
-  
-    // Калибровка и чувствительность
-    const adjustedX = acc.x + game.accelCalibration;
-    const threshold = 1.5; // Порог чувствительности
-    const deadZone = 0.3; // Мертвая зона для предотвращения дрожания
-  
-    // Сбрасываем предыдущее состояние
-    game.keys["ArrowLeft"] = false;
-    game.keys["ArrowRight"] = false;
-  
-    // Игнорируем небольшие наклоны (мертвая зона)
-    if (Math.abs(adjustedX) < deadZone) return;
-  
-    // Управление движением
-    if (adjustedX < -threshold) { // Наклон влево -> движение влево
-      game.keys["ArrowLeft"] = true;
-    } else if (adjustedX > threshold) { // Наклон вправо -> движение вправо
-      game.keys["ArrowRight"] = true;
-    }
+  const acc = event.accelerationIncludingGravity;
+  if (!acc) return;
+
+  // Калибровка и чувствительность
+  const adjustedX = acc.x + game.accelCalibration;
+  const threshold = 1.5; // Порог чувствительности
+  const deadZone = 0.3; // Мертвая зона для предотвращения дрожания
+
+  // Сбрасываем предыдущее состояние
+  game.keys["ArrowLeft"] = false;
+  game.keys["ArrowRight"] = false;
+
+  // Игнорируем небольшие наклоны (мертвая зона)
+  if (Math.abs(adjustedX) < deadZone) return;
+
+  // Управление движением
+  if (adjustedX < -threshold) {
+    // Наклон влево -> движение влево
+    game.keys["ArrowLeft"] = true;
+  } else if (adjustedX > threshold) {
+    // Наклон вправо -> движение вправо
+    game.keys["ArrowRight"] = true;
   }
+}
 
 function vibrate() {
   if (navigator.vibrate) {
     navigator.vibrate(50);
   }
 }
-
-
-
 
 // ======== МОБИЛЬНОЕ УПРАВЛЕНИЕ И УБИЙСТВО МОБОВ ========
 let activeTouch = null;
