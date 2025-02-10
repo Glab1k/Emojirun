@@ -759,7 +759,7 @@ function update(deltaTime) {
   if (player.x > canvas.width - player.width) {
     player.x = canvas.width - player.width;
   }
-
+  //обновление позиции игрока
   player.velocityY += (game.gravity * deltaTime) / 1000;
   player.y += (player.velocityY * deltaTime) / 1000;
 
@@ -846,11 +846,11 @@ function checkCollision(player, platform) {
 }
 
 function checkGameOver() {
-  if (player.y > canvas.height) {
-    gameState = "gameOver";
+  // Проверяем, ушел ли игрок за нижнюю границу экрана
+  if (player.y + game.cameraY > canvas.height) {
+    gameState = "gameOver"; // Игра заканчивается
   }
 }
-
 function renderPauseScreen() {
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
