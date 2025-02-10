@@ -139,3 +139,24 @@ body.gameState-playing #pauseButton {
     display: block;
   }
 }
+
+/* Добавьте в CSS */
+#controlToggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 8px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#controlToggle[data-mode="accelerometer"] {
+  background: #2196F3;
+}
+
+#controlToggle[data-mode="touch"] {
+  background: #4CAF50;
+}
