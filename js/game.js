@@ -17,7 +17,6 @@ const game = {
   controlType: "accelerometer", // Добавлено поле для переключения управления
   accelSensitivity: 2.5,
   accelCalibration: 0, // Калибровочное смещение
-  deathZoneHeight: 100, // Высота смертельной зоны
 };
 
 // Настройки генерации платформ
@@ -848,7 +847,7 @@ function checkCollision(player, platform) {
 
 function checkGameOver() {
   // Проверяем, ушел ли игрок за нижнюю границу экрана
-  if (player.y > canvas.height - game.deathZoneHeight) {
+  if (player.y > canvas.height) {
     gameState = "gameOver"; // Игра заканчивается
     console.log("Игрок упал за пределы экрана. Игра окончена!");
   }
