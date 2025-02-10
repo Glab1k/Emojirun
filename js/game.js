@@ -732,6 +732,20 @@ function update(deltaTime) {
   if (gameState !== "playing") return;
   if (game.isPaused) return;
 
+  // Удаляем платформы, которые ушли за пределы экрана
+  for (let i = platforms.length - 1; i >= 0; i--) {
+    if (platforms[i].y + game.cameraY > canvas.height) {
+      platforms.splice(i, 1); // Удаляем платформу
+    }
+  }
+
+  // Генерация новых платформ, если их стало мало
+  while (platforms.length < 10) {
+    // Поддерживаем минимум 10 платформ на экране
+    const platform = generatePlatform();
+    platforms.push(platform);
+  }
+
   if (game.keys["ArrowLeft"]) {
     player.x -= (player.speed * deltaTime) / 1000;
   }
