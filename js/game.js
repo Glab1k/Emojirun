@@ -133,8 +133,8 @@ function handleDeviceMotion(event) {
     // Наклон вправо -> движение вправо
     game.keys["ArrowRight"] = true;
   }
-}
 
+}
 function vibrate() {
   if (navigator.vibrate) {
     navigator.vibrate(50);
@@ -142,8 +142,6 @@ function vibrate() {
 }
 
 // ======== МОБИЛЬНОЕ УПРАВЛЕНИЕ И УБИЙСТВО МОБОВ ========
-let activeTouch = null;
-
 canvas.addEventListener(
   "touchstart",
   (event) => {
@@ -152,12 +150,11 @@ canvas.addEventListener(
     const rect = canvas.getBoundingClientRect();
     let enemyTapped = false;
 
-    // Обработка всех касаний
+    // Обработка всех касаний для убийства врагов
     for (let touch of event.touches) {
       const touchX = touch.clientX - rect.left;
       const touchY = touch.clientY - rect.top;
 
-      // Проверка на попадание во врагов
       enemies.forEach((enemy) => {
         if (!enemy.isAlive) return;
 
@@ -171,19 +168,24 @@ canvas.addEventListener(
           enemy.isAlive = false;
           score += 5;
           enemyTapped = true;
+          vibrate();
         }
       });
     }
 
-    // Обработка движения по последнему касанию
+    // Блокируем управление движением если акселерометр активен
+    if (game.controlType === "accelerometer") {
+      if (enemyTapped) event.preventDefault();
+      return;
+    }
+
+    // Старое управление движением (только для режима touch)
     const lastTouch = event.touches[event.touches.length - 1];
     const touchX = lastTouch.clientX - rect.left;
 
-    // Сбрасываем предыдущее состояние
     game.keys["ArrowLeft"] = false;
     game.keys["ArrowRight"] = false;
 
-    // Устанавливаем новое направление
     if (touchX < canvas.width / 2) {
       game.keys["ArrowLeft"] = true;
       activeTouch = "left";
@@ -200,17 +202,15 @@ canvas.addEventListener(
 canvas.addEventListener(
   "touchmove",
   (event) => {
-    if (gameState !== "playing") return;
-
+    if (gameState !== "playing" || game.controlType === "accelerometer") return;
+    
     const rect = canvas.getBoundingClientRect();
     const touch = event.touches[0];
     const touchX = touch.clientX - rect.left;
 
-    // Сбрасываем предыдущее состояние
     game.keys["ArrowLeft"] = false;
     game.keys["ArrowRight"] = false;
 
-    // Устанавливаем новое направление
     if (touchX < canvas.width / 2) {
       game.keys["ArrowLeft"] = true;
       activeTouch = "left";
@@ -225,6 +225,8 @@ canvas.addEventListener(
 );
 
 canvas.addEventListener("touchend", (e) => {
+  if (game.controlType === "accelerometer") return;
+  
   game.keys["ArrowLeft"] = false;
   game.keys["ArrowRight"] = false;
   activeTouch = null;
