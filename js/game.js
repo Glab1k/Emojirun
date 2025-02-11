@@ -11,7 +11,7 @@ const game = {
   keys: {},
   gravity: 800,
   jumpSpeed: -700,
-  cameraY: 0,
+  cameraY: 0, // Убираем влияние cameraY на фон
   maxPlatforms: 60,
   isPaused: false,
   controlType: "accelerometer", // Добавлено поле для переключения управления
@@ -80,7 +80,8 @@ pauseButton.addEventListener("click", () => {
 const staticBackground = new Image();
 staticBackground.src = "assets/img/static_background.png";
 
-let renderStaticBackground; // Объявляем переменную для функции отрисовки
+let backgroundCanvas = document.createElement("canvas");
+let backgroundCtx = backgroundCanvas.getContext("2d");
 
 // Функции для управления видимостью кнопки шестеренки
 function showSettingsButton() {
@@ -128,13 +129,6 @@ document.addEventListener("click", (event) => {
     hideSettingsMenu();
   }
 });
-
-staticBackground.onload = function () {
-  // Определяем функцию отрисовки после загрузки изображения
-  renderStaticBackground = function () {
-    ctx.drawImage(staticBackground, 0, 0, canvas.width, canvas.height);
-  };
-};
 
 // ======== Управление акселерометром ========
 function enableAccelerometer() {
@@ -347,7 +341,7 @@ function renderEnemies() {
   enemies.forEach((enemy) => {
     if (enemy.isAlive) {
       ctx.fillStyle = enemy.color;
-      ctx.fillRect(enemy.x, enemy.y + game.cameraY, enemy.width, enemy.height);
+      ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
     }
   });
 }
@@ -381,6 +375,7 @@ function updateEnemies(deltaTime) {
 }
 
 // Обнаружение столкновений с врагами
+// Обнаружение столкновений с врагами
 function checkEnemyCollisions() {
   for (let i = 0; i < enemies.length; i++) {
     const enemy = enemies[i];
@@ -389,15 +384,12 @@ function checkEnemyCollisions() {
       const collision =
         player.x < enemy.x + enemy.width &&
         player.x + player.width > enemy.x &&
-        player.y + player.height >= enemy.y + game.cameraY &&
-        player.y + player.height <= enemy.y + game.cameraY + 10;
+        player.y + player.height >= enemy.y &&
+        player.y + player.height <= enemy.y + 10;
 
       if (collision) {
         // Проверяем, наступил ли игрок на врага сверху
-        if (
-          player.velocityY > 0 &&
-          player.y + player.height <= enemy.y + game.cameraY + 10
-        ) {
+        if (player.velocityY > 0 && player.y + player.height <= enemy.y + 10) {
           // Убиваем врага
           enemy.isAlive = false;
           score += 3;
@@ -429,7 +421,13 @@ function createPlatform(x, y, width, height, color, type) {
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  game.cameraY = -player.y + canvas.height / 2;
+
+  // Обновляем размеры backgroundCanvas
+  backgroundCanvas.width = canvas.width;
+  backgroundCanvas.height = canvas.height;
+  createBackground();
+
+  game.cameraY = -player.y + canvas.height / 2; // Обновляем положение камеры
 }
 
 // Создаем изображение для игрока (если еще не создано)
@@ -581,6 +579,7 @@ function startGame() {
   generateEnemies();
 
   game.cameraY = -player.y + canvas.height * 0.75;
+
   resizeCanvas();
 
   enableAccelerometer();
@@ -688,49 +687,50 @@ document.addEventListener("keyup", (event) => {
   game.keys[event.code] = false;
 });
 
+function createBackground() {
+  backgroundCanvas.width = canvas.width;
+  backgroundCanvas.height = canvas.height;
+
+  // Отрисовываем статический фон во временном canvas, заполняя его полностью
+  backgroundCtx.drawImage(
+    staticBackground,
+    0,
+    0,
+    staticBackground.width,
+    staticBackground.height,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+}
+
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (typeof renderStaticBackground === "function") renderStaticBackground();
+  // Рисуем фон из backgroundCanvas без смещения камеры!
+  ctx.drawImage(backgroundCanvas, 0, 0);
 
-  if (gameState === "menu") {
-    renderMenu();
-    hideSettingsButton(); // Скрываем кнопку в меню
-  } else if (gameState === "gameOver") {
-    renderGameOver();
-    hideSettingsButton(); // Скрываем кнопку при завершении игры
-  } else {
-    if (game.isPaused) {
-      hideSettingsButton(); // Скрываем кнопку на паузе
-    } else {
-      showSettingsButton(); // Показываем кнопку во время игры
-    }
+  // Отрисовываем игровые объекты с учетом положения камеры
+  ctx.save(); // Сохраняем текущее состояние canvas
+  ctx.translate(0, game.cameraY); // Применяем смещение камеры
 
-    platforms.forEach((platform) => {
-      ctx.fillStyle = platform.color;
-      ctx.fillRect(
-        platform.x,
-        platform.y + game.cameraY,
-        platform.width,
-        platform.height
-      );
-    });
+  // Дальше рисуем платформы, врагов и игрока, как и раньше
+  platforms.forEach((platform) => {
+    ctx.fillStyle = platform.color;
+    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+  });
 
-    renderEnemies();
+  renderEnemies();
 
-    ctx.drawImage(
-      playerImage,
-      player.x,
-      player.y + game.cameraY,
-      player.width,
-      player.height
-    );
+  ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
 
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "30px Arial";
-    ctx.textAlign = "center"; // Выравнивание по центру
-    ctx.fillText(score.toString(), canvas.width / 2, 30); // Центрируем по горизонтали
-  }
+  ctx.restore(); // Восстанавливаем состояние canvas (убираем смещение камеры для UI)
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "30px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(score.toString(), canvas.width / 2, 30); // Центрируем по горизонтали
 
   if (game.isPaused && gameState === "playing") {
     renderPauseScreen();
@@ -996,3 +996,8 @@ function removeSkinSelector() {
 
 // Вызовите эту функцию при инициализации игры
 createSkinSelector();
+
+staticBackground.onload = function () {
+  createBackground();
+  resizeCanvas();
+};
