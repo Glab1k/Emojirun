@@ -17,6 +17,7 @@ const game = {
   controlType: "accelerometer", // Добавлено поле для переключения управления
   accelSensitivity: 2.5,
   accelCalibration: 0, // Калибровочное смещение
+  lowestPlatformY: 0, // Добавляем переменную для отслеживания самой нижней платформы
 };
 
 // Настройки генерации платформ
@@ -509,6 +510,11 @@ function generatePlatform() {
     type
   );
 
+  // Обновляем lowestPlatformY
+  if (platform.y > game.lowestPlatformY) {
+    game.lowestPlatformY = platform.y;
+  }
+
   switch (type) {
     case "photo":
       platform.isBroken = false;
@@ -532,7 +538,7 @@ function startGame() {
 
   removeSkinSelector();
   hideGameOverUI();
-  hideSettingsMenu(); // Скрываем меню настроек при старте игры
+  hideSettingsMenu();
 
   platforms.length = 0;
   platformsPassed = 0;
@@ -557,6 +563,9 @@ function startGame() {
   );
   platforms.push(initialPlatform);
 
+  // Инициализируем lowestPlatformY
+  game.lowestPlatformY = initialPlatform.y;
+
   for (let i = 1; i < game.maxPlatforms; i++) {
     const platform = generatePlatform();
     const lastPlatform = platforms[platforms.length - 1];
@@ -574,7 +583,7 @@ function startGame() {
   game.cameraY = -player.y + canvas.height * 0.75;
   resizeCanvas();
 
-  enableAccelerometer(); //акселерометр
+  enableAccelerometer();
 }
 
 document.getElementById("controlToggle").addEventListener("click", () => {
@@ -736,6 +745,7 @@ function update(deltaTime) {
   for (let i = platforms.length - 1; i >= 0; i--) {
     if (platforms[i].y + game.cameraY > canvas.height) {
       platforms.splice(i, 1); // Удаляем платформу
+      game.lowestPlatformY = Math.max(...platforms.map((p) => p.y)); //обновляем lowestPlayformy
     }
   }
 
@@ -846,18 +856,13 @@ function checkCollision(player, platform) {
 }
 
 function checkGameOver() {
-  // Проверяем, ушел ли игрок за нижнюю границу экрана или ниже камеры на 100 пикселей
-  if (player.y + game.cameraY > canvas.height + 50) {
+  // Проверяем, упал ли игрок ниже самой нижней платформы
+  if (player.y > game.lowestPlatformY + player.height) {
     gameState = "gameOver"; // Игра заканчивается
-    console.log("Игрок упал за пределы экрана. Игра окончена!");
+    console.log("Игрок упал с платформы. Игра окончена!");
   }
 }
 
-function stopGame() {
-  game.isRunning = false;
-  player.velocityY = 0;
-  player.speed = 0;
-}
 function renderPauseScreen() {
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
