@@ -549,13 +549,25 @@ function startGame() {
 
   const initialPlatform = createPlatform(
     canvas.width / 2 - 50,
-    player.y + player.height,
+    canvas.height - 50, // Фиксированная позиция внизу экрана
     100,
     20,
     getPlatformColor("text"),
     "text"
   );
   platforms.push(initialPlatform);
+
+  // Исправляем генерацию остальных платформ
+  for (let i = 1; i < game.maxPlatforms; i++) {
+    const platform = generatePlatform();
+    const lastPlatform = platforms[platforms.length - 1];
+    platform.y =
+      lastPlatform.y -
+      (platformSettings.minVerticalGap +
+        Math.random() *
+          (platformSettings.maxVerticalGap - platformSettings.minVerticalGap));
+    platforms.push(platform);
+  }
 
   for (let i = 1; i < game.maxPlatforms; i++) {
     const platform = generatePlatform();
@@ -845,15 +857,14 @@ function checkCollision(player, platform) {
   return false;
 }
 
+// В функции checkGameOver() ОСТАВЛЯЕМ ТОЛЬКО ПРОВЕРКУ НА ГРАНИЦУ ЭКРАНА
 function checkGameOver() {
-  // Проверяем, ушел ли игрок за нижнюю границу экрана
+  // Проверяем только выход за нижнюю границу экрана
   if (player.y > canvas.height) {
-    gameState = "gameOver"; // Игра заканчивается
+    gameState = "gameOver";
     console.log("Игрок упал за пределы экрана. Игра окончена!");
   }
 }
-
-
 function renderPauseScreen() {
   ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
