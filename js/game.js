@@ -846,13 +846,10 @@ function checkCollision(player, platform) {
 }
 
 function checkGameOver() {
-  if (
-    player.y > canvas.height ||
-    player.y + game.cameraY > canvas.height + 200
-  ) {
-    gameState = "gameOver";
+  // Проверяем, ушел ли игрок за нижнюю границу экрана или ниже камеры на 100 пикселей
+  if (player.y + game.cameraY > canvas.height + 50) {
+    gameState = "gameOver"; // Игра заканчивается
     console.log("Игрок упал за пределы экрана. Игра окончена!");
-    stopGame(); // Остановка игры
   }
 }
 
