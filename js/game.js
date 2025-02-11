@@ -480,14 +480,16 @@ function getPlatformColor(type) {
       return "#00FF00";
     case "booster":
       return "#FF00FF";
+    case "death": // Добавили цвет для платформы "death"
+      return "#FF0000";
     default:
       return "#FFFFFF";
   }
 }
 
 function generatePlatform() {
+  //const types = ["text", "photo", "video", "booster"]; // Изначальный список типов
   const types = ["text", "photo", "video", "booster"];
-  const type = types[Math.floor(Math.random() * types.length)];
 
   const highestPlatform = platforms.reduce(
     (min, p) => (p.y < min.y ? p : min),
@@ -500,26 +502,16 @@ function generatePlatform() {
     Math.random() *
       (platformSettings.maxVerticalGap - platformSettings.minVerticalGap);
 
-  const platform = createPlatform(
-    Math.random() * (canvas.width - 100),
-    baseY - verticalGap,
-    100,
-    20,
-    getPlatformColor(type),
-    type
-  );
+  let platformWidth = 100;
 
-  switch (type) {
-    case "photo":
-      platform.isBroken = false;
-      break;
-    case "video":
-      platform.speed = 50;
-      platform.direction = Math.random() > 0.5 ? 1 : -1;
-      break;
-    case "booster":
-      break;
-  }
+  const platform = createPlatform(
+    Math.random() * (canvas.width - platformWidth),
+    baseY - verticalGap,
+    platformWidth,
+    20,
+    getPlatformColor("text"),
+    "text"
+  );
 
   return platform;
 }
@@ -549,25 +541,13 @@ function startGame() {
 
   const initialPlatform = createPlatform(
     canvas.width / 2 - 50,
-    canvas.height - 50, // Фиксированная позиция внизу экрана
+    player.y + player.height,
     100,
     20,
     getPlatformColor("text"),
     "text"
   );
   platforms.push(initialPlatform);
-
-  // Исправляем генерацию остальных платформ
-  for (let i = 1; i < game.maxPlatforms; i++) {
-    const platform = generatePlatform();
-    const lastPlatform = platforms[platforms.length - 1];
-    platform.y =
-      lastPlatform.y -
-      (platformSettings.minVerticalGap +
-        Math.random() *
-          (platformSettings.maxVerticalGap - platformSettings.minVerticalGap));
-    platforms.push(platform);
-  }
 
   for (let i = 1; i < game.maxPlatforms; i++) {
     const platform = generatePlatform();
@@ -582,6 +562,7 @@ function startGame() {
   }
 
   generateEnemies();
+  generateDeathPlatform();
 
   game.cameraY = -player.y + canvas.height * 0.75;
   resizeCanvas();
@@ -747,7 +728,9 @@ function update(deltaTime) {
   // Удаляем платформы, которые ушли за пределы экрана
   for (let i = platforms.length - 1; i >= 0; i--) {
     if (platforms[i].y + game.cameraY > canvas.height) {
-      platforms.splice(i, 1); // Удаляем платформу
+      // platforms.splice(i, 1); // Удаляем платформу
+      platforms.splice(i, 1);
+      generateDeathPlatform();
     }
   }
 
@@ -805,6 +788,10 @@ function update(deltaTime) {
     const platform = platforms[i];
 
     if (checkCollision(player, platform)) {
+      if (platform.type === "death") {
+        gameState = "gameOver";
+        return;
+      }
       player.y = platform.y - player.height;
       player.velocityY = game.jumpSpeed;
       player.isJumping = false;
@@ -857,11 +844,10 @@ function checkCollision(player, platform) {
   return false;
 }
 
-// В функции checkGameOver() ОСТАВЛЯЕМ ТОЛЬКО ПРОВЕРКУ НА ГРАНИЦУ ЭКРАНА
 function checkGameOver() {
-  // Проверяем только выход за нижнюю границу экрана
+  // Проверяем, ушел ли игрок за нижнюю границу экрана
   if (player.y > canvas.height) {
-    gameState = "gameOver";
+    gameState = "gameOver"; // Игра заканчивается
     console.log("Игрок упал за пределы экрана. Игра окончена!");
   }
 }
@@ -998,3 +984,20 @@ function removeSkinSelector() {
 
 // Вызовите эту функцию при инициализации игры
 createSkinSelector();
+
+function generateDeathPlatform() {
+  // Находим самую нижнюю платформу
+  const lowestPlatform = platforms.reduce((max, p) => (p.y > max.y ? p : max), {
+    y: -Infinity,
+  });
+
+  const platform = createPlatform(
+    0, // x: 0, чтобы занимала весь экран по ширине
+    lowestPlatform.y + lowestPlatform.height, // y: Сразу под нижней платформой
+    canvas.width, // width: Во всю ширину экрана
+    20, // height: 20 (или другая желаемая высота)
+    getPlatformColor("death"), // color: Цвет для death-платформы
+    "death" // type: "death"
+  );
+  platforms.push(platform);
+}
