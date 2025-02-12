@@ -10,16 +10,19 @@ const levels = [
     name: "Город",
     background: "assets/img/city.jpg",
     preview: "assets/img/city.jpg",
+    enemySkin: "assets/skins/city_enemy.png", // Добавляем скин врага
   },
   {
     name: "Дарквеб",
     background: "assets/img/darkweb.jpg",
     preview: "assets/img/darkweb.jpg",
+    enemySkin: "assets/skins/darkweb_enemy.png",
   },
   {
     name: "Поле",
     background: "assets/img/field.jpg",
     preview: "assets/img/field.jpg",
+    enemySkin: "assets/skins/field_enemy.png",
   },
 ];
 
@@ -95,8 +98,8 @@ const platformSettings = {
 const player = {
   x: 0,
   y: 0,
-  width: 32,
-  height: 32,
+  width: 40,
+  height: 40,
   color: "#00FF00",
   speed: 200,
   velocityY: 0,
@@ -112,9 +115,8 @@ const enemies = [];
 
 // Настройки врагов
 const enemySettings = {
-  width: 24,
-  height: 24,
-  color: "#FF0000",
+  width: 40,
+  height: 40,
   speed: 50,
 };
 
@@ -364,49 +366,66 @@ canvas.addEventListener("click", (event) => {
 });
 
 // Функция создания врага
-function createEnemy(x, y) {
+function createEnemy(x, y, image) {
   return {
     x: x,
     y: y,
     width: enemySettings.width,
     height: enemySettings.height,
-    color: enemySettings.color,
-    speed: 50,
-    direction: Math.random() > 0.5 ? 1 : -1, // 1 - вправо, -1 - влево
+    image: image,
+    speed: enemySettings.speed,
+    direction: Math.random() > 0.5 ? 1 : -1,
     isAlive: true,
   };
 }
 
 // Функция генерации врагов на платформах
 function generateEnemies() {
+  const currentLevel = levels[currentLevelIndex];
+  const enemyImage = new Image();
+  enemyImage.src = currentLevel.enemySkin;
+
   platforms.forEach((platform) => {
-    // Проверяем тип платформы. Не создаем врагов на платформах "photo"
+    // Пропускаем: начальную платформу, фото, видео
     if (
-      platform.type !== "photo" &&
-      platform.type !== "video" &&
-      platform.type !== "text"
+      platform.isInitial ||
+      platform.type === "photo" ||
+      platform.type === "video"
     ) {
-      // С некоторой вероятностью создаем врага на платформе
-      if (Math.random() < 0.3) {
-        // 30% вероятность
-        const enemyX =
-          platform.x + Math.random() * (platform.width - enemySettings.width);
-        const enemyY = platform.y - enemySettings.height;
-        const enemy = createEnemy(enemyX, enemyY);
-        enemies.push(enemy);
-      }
+      return;
+    }
+
+    // Спавним врагов только на платформах типа "text" с вероятностью 30%
+    if (platform.type === "text" && Math.random() < 0.3) {
+      const enemyX =
+        platform.x + Math.random() * (platform.width - enemySettings.width);
+      const enemyY = platform.y - enemySettings.height;
+      const enemy = createEnemy(enemyX, enemyY, enemyImage); // Передаем изображение
+      enemies.push(enemy);
     }
   });
 }
+
 // Отрисовка врагов
 function renderEnemies() {
   enemies.forEach((enemy) => {
-    if (enemy.isAlive) {
-      ctx.fillStyle = enemy.color;
-      ctx.fillRect(enemy.x, enemy.y + game.cameraY, enemy.width, enemy.height);
+    if (enemy.isAlive && enemy.image.complete) {
+      ctx.drawImage(
+        enemy.image,
+        enemy.x,
+        enemy.y + game.cameraY,
+        enemy.width,
+        enemy.height
+      );
     }
   });
 }
+// Предзагрузка изображений врагов
+const enemyImages = levels.map((level) => {
+  const img = new Image();
+  img.src = level.enemySkin;
+  return img;
+});
 
 // Движение врагов
 function updateEnemies(deltaTime) {
@@ -619,6 +638,7 @@ function startGame() {
     getPlatformColor("text"),
     "text"
   );
+  initialPlatform.isInitial = true; // <-- Помечаем платформу как начальную
   platforms.push(initialPlatform);
 
   // Инициализируем lowestPlatformY
@@ -1052,4 +1072,4 @@ function updateSkin() {
   skinImageElement.src = skinPaths[currentSkinIndex];
   playerImage.src = skinPaths[currentSkinIndex]; // Синхронизация с игроком
 }
-
+// Инициализация селектора скинов при загрузке
