@@ -502,8 +502,10 @@ function createPlatform(x, y, width, height, color, type) {
 }
 
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  const tg = window.Telegram.WebApp;
+  const canvas = document.getElementById("gameCanvas");
+  canvas.width = tg.viewportWidth || window.innerWidth;
+  canvas.height = tg.viewportHeight || window.innerHeight;
   game.cameraY = -player.y + canvas.height / 2;
 
   // Установка фона в зависимости от выбранного уровня
