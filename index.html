@@ -66,14 +66,53 @@
 
     <!-- Подключение JavaScript -->
     <script src="js/game.js" type="module"></script>
+
     <script>
       // Инициализация Telegram Web App
       const tg = window.Telegram.WebApp;
-      tg.ready();
 
-      const web_app = Telegram.WebApp;
-      const initData = web_app.initDataUnsafe || {};
-      const user = Telegram.WebApp.initDataUnsafe?.user;
+      // 1. Автоматическое расширение на полный экран
+      tg.ready();
+      tg.expand();
+
+      // 2. Адаптация размеров под устройство
+      function updateLayout() {
+        const canvas = document.getElementById("gameCanvas");
+        const mainMenu = document.getElementById("mainMenu");
+
+        // Установка размеров canvas
+        canvas.width = tg.viewportWidth;
+        canvas.height = tg.viewportHeight;
+
+        // Адаптация меню
+        if (mainMenu) {
+          mainMenu.style.width = `${tg.viewportWidth}px`;
+          mainMenu.style.height = `${tg.viewportHeight}px`;
+        }
+      }
+
+      // 3. Обработчик изменения ориентации устройства
+      tg.onEvent("viewportChanged", updateLayout);
+
+      // 4. Первоначальная настройка
+      updateLayout();
+
+      // 5. Ваш оригинальный код
+      const initData = tg.initDataUnsafe || {};
+      const user = tg.initDataUnsafe?.user;
+
+      if (user) {
+        console.log("ID пользователя:", user.id);
+        console.log("Имя пользователя:", user.username);
+        console.log("Имя:", user.first_name);
+        console.log("Фамилия:", user.last_name);
+      }
+
+      // 6. Интеграция с игровой логикой
+      window.startGame = () => {
+        // Ваш код запуска игры
+        tg.showAlert("Игра началась!");
+      };
 
       if (user) {
         console.log("ID пользователя:", user.id);
@@ -87,9 +126,6 @@
       const sendData = () => {
         console.log(initData);
       };
-
-      // Запрос на расширение приложения на полный экран
-      Telegram.WebApp.expand();
     </script>
   </body>
 </html>
