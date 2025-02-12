@@ -68,7 +68,9 @@
     <script src="js/game.js" type="module"></script>
     <script>
       // Инициализация Telegram Web App
-      Telegram.WebApp.ready();
+      const tg = window.Telegram.WebApp;
+      tg.ready();
+
       const web_app = Telegram.WebApp;
       const initData = web_app.initDataUnsafe || {};
       const user = Telegram.WebApp.initDataUnsafe?.user;
@@ -86,7 +88,7 @@
         console.log(initData);
       };
 
-       // Запрос на расширение приложения на полный экран
+      // Запрос на расширение приложения на полный экран
       Telegram.WebApp.expand();
     </script>
   </body>
