@@ -20,17 +20,54 @@
   </head>
   <body>
     <canvas id="gameCanvas"></canvas>
-    <button id="pauseButton">Пауза</button>
+    <!-- Основное меню -->
+    <div id="mainMenu" style="display: none">
+      <!-- Фон меню -->
+      <div id="menuBackground"></div>
+
+      <!-- Кнопки снизу -->
+      <div id="menuButtons">
+        <button id="leaderboardButton">Таблица лидеров</button>
+        <button id="shopButton">Магазин</button>
+        <button id="comingSoonButton">Скоро</button>
+      </div>
+
+      <!-- Выбор скина -->
+      <div id="skinSelector">
+        <button id="prevSkin">←</button>
+        <img id="skinImage" src="assets/skins/skin1.png" />
+        <button id="nextSkin">→</button>
+      </div>
+
+      <!-- Выбор уровня -->
+      <div id="levelSelector">
+        <button id="prevLevel">←</button>
+        <div id="levelPreview">
+          <img id="levelImage" src="assets/img/city.jpg" />
+          <h2 id="levelName">Город</h2>
+        </div>
+        <button id="nextLevel">→</button>
+      </div>
+    </div>
+
     <!-- Кнопка паузы -->
-    <button id="settingsButton" style="display: none">⚙️</button>
+    <button id="pauseButton">Пауза</button>
+
     <!-- Кнопка настроек -->
+    <button id="settingsButton" style="display: none">⚙️</button>
+
+    <!-- Меню настроек -->
     <div id="settingsMenu" style="display: none">
       <button id="changeControlButton">Сменить управление</button>
     </div>
+
+    <!-- Кнопка переключения управления -->
     <button id="controlToggle">Переключить управление</button>
-    <!-- Кнопка управления-->
+
+    <!-- Подключение JavaScript -->
     <script src="js/game.js" type="module"></script>
     <script>
+      // Инициализация Telegram Web App
       Telegram.WebApp.ready();
       const web_app = Telegram.WebApp;
       const initData = web_app.initDataUnsafe || {};
