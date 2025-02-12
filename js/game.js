@@ -1078,3 +1078,4 @@ function updateSkin() {
   skinImageElement.src = skinPaths[currentSkinIndex];
   playerImage.src = skinPaths[currentSkinIndex]; // Синхронизация с игроком
 }
+// Инициализация селектора скинов при загрузке
