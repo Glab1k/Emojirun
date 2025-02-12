@@ -3,12 +3,20 @@
   <head>
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, accelerometer=yes, orientation=portrait"
+      content="width=device-width, initial-scale=1.0, 
+      maximum-scale=1.0, user-scalable=no, accelerometer=yes, orientation=portrait"
     />
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="utf-8" />
     <title>Pixel Emoji Run</title>
     <link rel="stylesheet" href="css/style.css" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, 
+      maximum-scale=1.0, user-scalable=no, accelerometer=yes"
+    />
   </head>
   <body>
     <canvas id="gameCanvas"></canvas>
@@ -16,18 +24,21 @@
     <div id="mainMenu" style="display: none">
       <!-- Фон меню -->
       <div id="menuBackground"></div>
+
       <!-- Кнопки снизу -->
       <div id="menuButtons">
         <button id="leaderboardButton">Таблица лидеров</button>
         <button id="shopButton">Магазин</button>
         <button id="comingSoonButton">Скоро</button>
       </div>
+
       <!-- Выбор скина -->
       <div id="skinSelector">
         <button id="prevSkin">←</button>
         <img id="skinImage" src="assets/skins/skin1.png" />
         <button id="nextSkin">→</button>
       </div>
+
       <!-- Выбор уровня -->
       <div id="levelSelector">
         <button id="prevLevel">←</button>
@@ -38,51 +49,29 @@
         <button id="nextLevel">→</button>
       </div>
     </div>
+
     <!-- Кнопка паузы -->
     <button id="pauseButton">Пауза</button>
+
     <!-- Кнопка настроек -->
     <button id="settingsButton" style="display: none">⚙️</button>
+
     <!-- Меню настроек -->
     <div id="settingsMenu" style="display: none">
       <button id="changeControlButton">Сменить управление</button>
     </div>
+
     <!-- Кнопка переключения управления -->
     <button id="controlToggle">Переключить управление</button>
+
     <!-- Подключение JavaScript -->
     <script src="js/game.js" type="module"></script>
     <script>
       // Инициализация Telegram Web App
       Telegram.WebApp.ready();
       const web_app = Telegram.WebApp;
-
-      // Расширение на полный экран
-      web_app.expand();
-
-      // Функция для адаптации размеров
-      function updateLayout() {
-        const canvas = document.getElementById("gameCanvas");
-        const mainMenu = document.getElementById("mainMenu");
-
-        // Установка размеров canvas
-        canvas.width = web_app.viewportWidth;
-        canvas.height = web_app.viewportHeight;
-
-        // Адаптация меню
-        if (mainMenu) {
-          mainMenu.style.width = `${web_app.viewportWidth}px`;
-          mainMenu.style.height = `${web_app.viewportHeight}px`;
-        }
-      }
-
-      // Обработчик изменения ориентации устройства
-      web_app.onEvent("viewportChanged", updateLayout);
-
-      // Первоначальная настройка
-      updateLayout();
-
-      // Получение данных пользователя
       const initData = web_app.initDataUnsafe || {};
-      const user = web_app.initDataUnsafe?.user;
+      const user = Telegram.WebApp.initDataUnsafe?.user;
 
       if (user) {
         console.log("ID пользователя:", user.id);
@@ -97,12 +86,8 @@
         console.log(initData);
       };
 
-      // Проверка, что Telegram Web App API работает
-      if (web_app) {
-        console.log("Telegram Web App API загружена успешно.");
-      } else {
-        console.error("Telegram Web App API не загружена.");
-      }
+      // Переход в полноэкранный режим
+      web_app.expand();
     </script>
   </body>
 </html>
