@@ -4,6 +4,10 @@ const settingsButton = document.getElementById("settingsButton");
 const settingsMenu = document.getElementById("settingsMenu");
 const changeControlButton = document.getElementById("changeControlButton");
 
+if (!web_app.isExpanded) {
+  web_app.expand();
+}
+
 // Уровни
 const levels = [
   {
@@ -1074,4 +1078,3 @@ function updateSkin() {
   skinImageElement.src = skinPaths[currentSkinIndex];
   playerImage.src = skinPaths[currentSkinIndex]; // Синхронизация с игроком
 }
-// Инициализация селектора скинов при загрузке
